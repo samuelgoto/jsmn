@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../jsmn.h"
+#include <emscripten/emscripten.h>
+#include <time.h>
+#include <stdint.h>
 
 /*
  * A small example of jsmn parsing when JSON structure is known and number of
@@ -17,6 +20,36 @@ static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
     return 0;
   }
   return -1;
+}
+
+/*
+ * Example usage in JS:
+ *
+ * const myArray = new TextEncoder("utf-8").encode("123")
+ * const b = Module._malloc(myArray.length + 1);
+ * Module.HEAPU8.set(myArray, b);
+ * Module.ccall('parse', 'number', ['number', 'number'],
+ *     [b, myArray.length + 1]);
+ * > 123
+ * Module._free(b);
+ *
+ */
+
+int EMSCRIPTEN_KEEPALIVE parse(uint8_t *buf, int len) {
+  char* data = (char*) buf;
+  buf[len] = '\0';
+  return atoi(data);
+}
+
+int EMSCRIPTEN_KEEPALIVE addThree(uint8_t *buf, int len) {
+  uint8_t *item;
+  uint8_t *end = buf + len;
+
+  for (item = buf; item < end; item++) {
+    *item += 3;
+  }
+
+  return 0;
 }
 
 int main() {

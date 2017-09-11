@@ -29,9 +29,9 @@ docscript: docscript/docscript.o libjsmn.a
 	$(CC) $(LDFLAGS) $^ -o docscript/docscript
 
 # emrun --no_browser --port 8080 .
-# http://localhost:8080/wasm.html
+# http://localhost:8080/docscript/docscript.html
 web:
-	emcc jsmn.c docscript/docscript.c -s WASM=1 -o docscript/docscript.html
+	emcc jsmn.c docscript/docscript.c -O3 -s WASM=1 -o docscript/docscript.html -s NO_EXIT_RUNTIME=1 --emrun
 
 simple_example: example/simple.o libjsmn.a
 	$(CC) $(LDFLAGS) $^ -o $@
@@ -41,7 +41,7 @@ jsondump: example/jsondump.o libjsmn.a
 
 clean:
 	rm -f *.o example/*.o
-	rm -f *.a *.so
+	rm -f *.a *.so *.wasm *.js
 	rm -f docscript/*.js docscript/*.wasm docscript/*.html docscript/*.o docscript/docscript
 	rm -f simple_example
 	rm -f jsondump
